@@ -1,0 +1,54 @@
+---
+
+- name: Add Oracle Java Repository
+  apt_repository: repo='ppa:webupd8team/java'
+
+- name: Accept Java 8 Licence
+  shell: echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | tee /etc/oracle-java-8-licence-acceptance | /usr/bin/debconf-set-selections
+  args:
+    creates: /etc/oracle-java-8-licence-acceptance
+
+- name: Install Oracle Java 8
+  apt: name={{item}} state=latest
+  with_items:
+    - oracle-java8-installer
+    - ca-certificates
+    - oracle-java8-set-default
+
+- name: Add Elasticsearch apt key.
+  apt_key:
+    url: https://packages.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add Elasticsearch repository.
+  apt_repository:
+    repo: 'deb http://packages.elastic.co/elasticsearch/{{ es_release }}/debian stable main'
+    state: present
+    update_cache: yes
+
+- name: Install ElasticSearch
+  apt: name=elasticsearch={{ es_version }} state=present
+  notify: Restart elasticsearch
+
+- name: Configure Elasticsearch.
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: 0750
+
+- name: Install plugins
+command: bin/plugin --install {{item.name}}
+args:
+  chdir: "{{ es_home }}"
+  creates: "{{ es_home }}/plugins/{{ item.plugin_file | default(item.name.split('/')[1]) }}"
+with_items: es_plugins
+notify: restart elasticsearch
+
+- name: Start Elasticsearch.
+  service: name=elasticsearch state=started enabled=yes
+
+- name: Make sure Elasticsearch is running before proceeding.
+  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
+

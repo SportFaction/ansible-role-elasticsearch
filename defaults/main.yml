@@ -1,0 +1,13 @@
+---
+elasticsearch_network_host: localhost
+elasticsearch_http_port: 9200
+elasticsearch_script_inline: true
+elasticsearch_script_indexed: true
+es_release: "6.0"
+es_version: ".0"
+es_home: /usr/share/elasticsearch
+es_plugins:
+  - name: elasticsearch/elasticsearch-cloud-aws/2.7.1
+  - name: elasticsearch/marvel/latest
+  - name: mobz/elasticsearch-head
+es_etc_index_number_of_replicas: 2
