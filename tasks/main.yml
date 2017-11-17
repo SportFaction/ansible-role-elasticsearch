@@ -39,12 +39,12 @@
     mode: 0750
 
 - name: Install plugins
-command: bin/plugin --install {{item.name}}
-args:
-  chdir: "{{ es_home }}"
-  creates: "{{ es_home }}/plugins/{{ item.plugin_file | default(item.name.split('/')[1]) }}"
-with_items: es_plugins
-notify: restart elasticsearch
+  command: bin/plugin --install {{item.name}}
+  args:
+    chdir: "{{ es_home }}"
+    creates: "{{ es_home }}/plugins/{{ item.plugin_file | default(item.name.split('/')[1]) }}"
+  with_items: es_plugins
+  notify: restart elasticsearch
 
 - name: Start Elasticsearch.
   service: name=elasticsearch state=started enabled=yes
