@@ -15,29 +15,13 @@
     - ca-certificates
     - oracle-java8-set-default
 
-- name: Install apt-transport-https to support https APT downloads
-  become: yes
-  apt: name=apt-transport-https state=present
+- name: Download Elasticsearch
+  get_url:
+    url: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.0.deb"
+    dest: /tmp
 
-- name: Add Elasticsearch apt-key
-  apt_key:
-    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
-    state: present
-
-- name: Add Elasticsearch repository.
-  apt_repository:
-    repo: 'deb https://artifacts.elastic.co/packages/{{ es_release }}/apt stable main'
-    state: present
-    update_cache: yes
-    
-- name: Update repositories cache and install Elasticsearch
-  apt:
-    name: elasticsearch
-    update_cache: yes
-
-- name: Install ElasticSearch
-  apt: name=elasticsearch={{ es_version }} state=present
-  notify: Restart elasticsearch
+- name: Install Elasticsearch
+  apt: deb="/tmp/elasticsearch-6.0.0.deb"
 
 - name: Configure Elasticsearch.
   template:
