@@ -17,11 +17,11 @@
 
 - name: Download Elasticsearch
   get_url:
-    url: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-{{ version }}.deb"
+    url: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-{{ es_version }}.deb"
     dest: /tmp
 
 - name: Install Elasticsearch
-  apt: deb="/tmp/elasticsearch-{{ version }}.deb"
+  apt: deb="/tmp/elasticsearch-{{ es_version }}.deb"
 
 - name: Configure Elasticsearch.
   template:
