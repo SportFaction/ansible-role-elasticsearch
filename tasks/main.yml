@@ -17,11 +17,11 @@
 
 - name: Download Elasticsearch
   get_url:
-    url: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.0.deb"
+    url: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-{{ version }}.deb"
     dest: /tmp
 
 - name: Install Elasticsearch
-  apt: deb="/tmp/elasticsearch-6.0.0.deb"
+  apt: deb="/tmp/elasticsearch-{{ version }}.deb"
 
 - name: Configure Elasticsearch.
   template:
@@ -31,16 +31,29 @@
     group: elasticsearch
     mode: 0750
 
-- name: Install plugins
-  command: bin/plugin --install {{item.name}}
-  args:
-    chdir: "{{ es_home }}"
-    creates: "{{ es_home }}/plugins/{{ item.plugin_file | default(item.name.split('/')[1]) }}"
-  with_items: es_plugins
+- name: Installing Elasticsearch Plugin License
+  shell: bin/plugin install license -Des.path.conf=/etc/elasticsearch chdir=/usr/share/elasticsearch
   notify: restart elasticsearch
 
-- name: Start Elasticsearch.
-  service: name=elasticsearch state=started enabled=yes
+- name: Installing Watcher Plugin
+  shell: bin/plugin install watcher -Des.path.conf=/etc/elasticsearch chdir=/usr/share/elasticsearch
+  notify: restart elasticsearch
+
+- name: Installing Watcher Plugin
+  shell: bin/plugin install watcher -Des.path.conf=/etc/elasticsearch chdir=/usr/share/elasticsearch
+  notify: restart elasticsearch
+
+- name: Installing Discovery-ec2 Plugin
+  shell: bin/plugin install discovery-ec2 -Des.path.conf=/etc/elasticsearch chdir=/usr/share/elasticsearch
+  notify: restart elasticsearch
+  
+# Fix permissions
+- file:
+    path: /usr/share/elasticsearch/plugins
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+    recurse: yes
 
 - name: Make sure Elasticsearch is running before proceeding.
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
