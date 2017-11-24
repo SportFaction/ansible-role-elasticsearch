@@ -7,6 +7,4 @@ es_version: "6.0.0"
 es_home: /usr/share/elasticsearch
 es_plugins:
   - plugin: discovery-ec2
-  - plugin: watcher
-  - plugin: licence
 es_etc_index_number_of_replicas: 2
