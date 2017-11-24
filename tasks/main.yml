@@ -31,16 +31,9 @@
     group: elasticsearch
     mode: 0750
 
-- name: Installing Elasticsearch Plugin License
-  shell: bin/elasticsearch-plugin install license -Des.path.conf=/etc/elasticsearch chdir=/usr/share/elasticsearch
-  notify: restart elasticsearch
-
-- name: Installing Watcher Plugin
-  shell: bin/elasticsearch-plugin install watcher -Des.path.conf=/etc/elasticsearch chdir=/usr/share/elasticsearch
-  notify: restart elasticsearch
-
-- name: Installing Discovery-ec2 Plugin
-  shell: bin/elasticsearch-plugin install discovery-ec2 -Des.path.conf=/etc/elasticsearch chdir=/usr/share/elasticsearch
+- name: Install elasticsearch plugins
+  command: "{{es_home}}/bin/elasticsearch-plugin install {{ item.plugin }} --batch --silent"
+  with_items: "{{ es_plugins }}"
   notify: restart elasticsearch
   
 # Fix permissions
