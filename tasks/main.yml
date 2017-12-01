@@ -1,19 +1,6 @@
 ---
 
-- name: Add Elasticsearch apt key.
-  apt_key:
-    url: https://packages.elastic.co/GPG-KEY-elasticsearch
-    state: present
-
-- name: Add Elasticsearch repository.
-  apt_repository:
-    repo: 'deb http://packages.elastic.co/elasticsearch/2.x/debian stable main'
-    state: present
-    update_cache: yes
-
-- name: Install Elasticsearch.
-  apt: pkg=elasticsearch state=present
-
+# INSTALL JAVA 8
 - name: Add Oracle Java Repository
   apt_repository: repo='ppa:webupd8team/java'
 
@@ -29,6 +16,16 @@
     - ca-certificates
     - oracle-java8-set-default
 
+- name:  Install apt-transport-https to support https APT downloads
+  apt: name=apt-transport-https state=present
+
+- name: Download Elasticsearch
+  get_url:
+    url: "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.0.0.deb"
+    dest: /tmp
+
+- name: Install Elasticsearch
+  apt: deb="/tmp/elasticsearch-6.0.0.deb"
 
 - name: Configure Elasticsearch.
   template:
@@ -39,14 +36,7 @@
     mode: 0750
   notify: restart elasticsearch
 
-- name: Start Elasticsearch.
-  service: name=elasticsearch state=started enabled=yes
-
 - name: Install elasticsearch plugins
   command: "/usr/share/elasticsearch/bin/elasticsearch-plugin install {{ item.plugin }} --batch --silent"
   with_items: "{{ es_plugins }}"
   notify: restart elasticsearch
-
-
-- name: Make sure Elasticsearch is running before proceeding.
-  wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
