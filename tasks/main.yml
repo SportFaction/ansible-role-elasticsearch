@@ -42,5 +42,13 @@
 - name: Start Elasticsearch.
   service: name=elasticsearch state=started enabled=yes
 
+/usr/share/elasticsearch/bin/elasticsearch-plugin install discovery-ec2 --batch --silent
+
+- name: Install elasticsearch plugins
+  command: "/usr/share/elasticsearch/bin/elasticsearch-plugin install {{ item.plugin }} --batch --silent"
+  with_items: "{{ es_plugins }}"
+  notify: restart elasticsearch
+
+
 - name: Make sure Elasticsearch is running before proceeding.
   wait_for: host={{ elasticsearch_network_host }} port={{ elasticsearch_http_port }} delay=3 timeout=300
