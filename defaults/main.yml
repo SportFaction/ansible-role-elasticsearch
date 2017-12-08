@@ -1,7 +1,34 @@
 ---
-elasticsearch_network_host: 0.0.0.0
+elasticsearch_http_host: 0.0.0.0
 elasticsearch_http_port: 9200
-elasticsearch_script_inline: true
-elasticsearch_script_indexed: true
+elasticsearch_tcp_port: 9300
+elasticsearch_daemon: elasticsearch
+
+elasticsearch_config: {
+  node.name: "node1",
+  cluster.name: "elasticcluster",
+  #discovery.zen.ping.unicast.hosts: "localhost:{{ elasticsearch_tcp_port }}",
+  #discovery.zen.ping.multicast.enabled: false,
+  discovery.zen.minimum_master_nodes: 1,
+  http.port: "{{ elasticsearch_http_port }}",
+  network.host: "{{ elasticsearch_http_host }}",
+  transport.tcp.port: "{{ elasticsearch_tcp_port }}",
+  node.data: true,
+  node.master: true,
+  bootstrap.memory_lock: false
+}
+
+elasticsearch_user: elasticsearch
+elasticsearch_group: elasticsearch
+elasticsearch_conf_dir: "/etc/elasticsearch"
+elasticsearch_pid_dir: "/var/run/elasticsearch"
+elasticsearch_data_dir: "/var/lib/elasticsearch"
+elasticsearch_log_dir: "/var/log/elasticsearch"
+elasticsearch_logger_level: INFO
+
+# elasticsearch JVM options
+elasticsearch_jvm_xms: 512m
+elasticsearch_jvm_xmx: 512m
+
 es_plugins:
   - plugin: discovery-ec2

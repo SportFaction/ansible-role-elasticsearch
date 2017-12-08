@@ -27,16 +27,43 @@
 - name: Install Elasticsearch
   apt: deb="/tmp/elasticsearch-6.0.0.deb"
 
-- name: Configure Elasticsearch.
+- name: config
   template:
-    src: elasticsearch.yml.j2
-    dest: /etc/elasticsearch/elasticsearch.yml
+    src: "{{ item }}.j2"
+    dest: "/etc/elasticsearch/{{ item }}"
+  with_items:
+    - jvm.options
+    - elasticsearch.yml
+    - logging
+  notify:
+    - restart elasticsearch
+
+- name: daemon config
+  template:
+    src: elasticsearch.j2
+    dest: /etc/default/elasticsearch
     owner: root
-    group: elasticsearch
-    mode: 0750
-  notify: restart elasticsearch
+    group: root
+    mode: 0644
+  notify:
+    - restart elasticsearch
 
 - name: Install elasticsearch plugins
   command: "/usr/share/elasticsearch/bin/elasticsearch-plugin install {{ item.plugin }} --batch --silent"
   with_items: "{{ es_plugins }}"
   notify: restart elasticsearch
+
+
+- name: service start
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items:
+    - "{{ elasticsearch_daemon }}"
+
+- name: wait for service start
+  wait_for:
+    port: "{{ elasticsearch_http_port }}"
+    delay: 3
+    timeout: 45
