@@ -1,20 +1,10 @@
 ---
 
 # INSTALL JAVA 8
-- name: Add Oracle Java Repository
-  apt_repository: repo='ppa:webupd8team/java'
-
-- name: Accept Java 8 Licence
-  shell: echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | tee /etc/oracle-java-8-licence-acceptance | /usr/bin/debconf-set-selections
-  args:
-    creates: /etc/oracle-java-8-licence-acceptance
-
-- name: Install Oracle Java 8
-  apt: name={{item}} state=latest
+- name: Ensure Java is installed.
+  apt: "name={{ item }} state=present"
   with_items:
-    - oracle-java8-installer
-    - ca-certificates
-    - oracle-java8-set-default
+   - openjdk-8-jdk
 
 - name:  Install apt-transport-https to support https APT downloads
   apt: name=apt-transport-https state=present
