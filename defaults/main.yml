@@ -3,6 +3,7 @@ elasticsearch_http_host: 0.0.0.0
 elasticsearch_http_port: 9200
 elasticsearch_tcp_port: 9300
 elasticsearch_daemon: elasticsearch
+elasticsearch_version: 6.1.2 
 
 elasticsearch_config: {
   node.name: "node1",
